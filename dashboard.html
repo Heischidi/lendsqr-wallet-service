@@ -522,7 +522,10 @@
     <div id="toast-container"></div>
 
     <script>
-        const API_BASE = 'http://localhost:3000/api';
+        // Use relative path for production (Vercel), or fallback to localhost if file:// is used
+        const isLocalFile = window.location.protocol === 'file:';
+        const API_BASE = isLocalFile ? 'http://localhost:3000/api' : '/api';
+
         let authToken = localStorage.getItem('lendsqr_token');
         let isLoginView = true;
 
