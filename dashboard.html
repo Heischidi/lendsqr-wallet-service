@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lendsqr - Wallet Feature Test Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media(min-width: 900px) {
+            .container {
+                grid-template-columns: 350px 1fr;
+            }
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+        }
+
+        .glass-panel h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            background: var(--primary);
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .auth-switch span {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Dashboard specific */
+        .workspace {
+            display: none;
+            /* hidden until logged in */
+            gap: 1.5rem;
+            flex-direction: column;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            text-align: center;
+            padding: 2rem;
+            border-radius: 16px;
+        }
+
+        .balance-amount {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0.5rem 0;
+            text-shadow: 0 2px 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .transaction-list {
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+
+        .transaction-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .transaction-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .transaction-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .tx-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.02);
+            transition: background 0.2s;
+        }
+
+        .tx-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tx-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .tx-FUNDING {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .tx-TRANSFER {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .tx-WITHDRAWAL {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .tx-details flex-grow {
+            flex-grow: 1;
+        }
+
+        .tx-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .tx-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .tx-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(8px);
+            border-left: 4px solid var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Lendsqr Tester Pro</h1>
+        <p>Visually interact with the Core APIs & Wallet Service</p>
+    </div>
+
+    <div class="container">
+        <!-- Auth Section -->
+        <div class="glass-panel" id="auth-panel">
+            <h2 id="auth-title">Welcome Back</h2>
+
+            <!-- Login Form -->
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="l-email" class="form-control" value="bob@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="l-password" class="form-control" value="SecurePass123" required>
+                </div>
+                <button type="submit" class="btn" id="l-btn">Login Securely</button>
+                <div class="auth-switch">New here? <span onclick="toggleAuth()">Create an account</span></div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" style="display: none;">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="r-first" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" id="r-last" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="r-phone" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="r-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="r-password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success" id="r-btn">Register Account</button>
+                <div class="auth-switch">Already registered? <span onclick="toggleAuth()">Login instead</span></div>
+            </form>
+        </div>
+
+        <!-- Profile Section (Shows after login in auth column) -->
+        <div class="glass-panel" id="profile-panel" style="display:none;">
+            <h2>👤 User Profile</h2>
+            <div style="margin-bottom: 1.5rem;">
+                <p style="color:var(--text-muted); font-size:0.875rem;">Name</p>
+                <p id="p-name" style="font-size:1.1rem; font-weight:600; margin-bottom:1rem;">---</p>
+
+                <p style="color:var(--text-muted); font-size:0.875rem;">Email</p>
+                <p id="p-email" style="font-size:0.95rem; margin-bottom:1rem;">---</p>
+
+                <p style="color:var(--text-muted); font-size:0.875rem;">Phone / Karma Checked</p>
+                <p id="p-phone" style="font-size:0.95rem; margin-bottom:1rem;">--- <span class="badge">Verified
+                        Clean</span></p>
+            </div>
+            <button class="btn btn-danger" onclick="logout()">Logout / Disconnect</button>
+        </div>
+
+        <!-- Dashboard Workspace -->
+        <div class="workspace" id="workspace-panel">
+
+            <div class="balance-card">
+                <p
+                    style="color: rgba(255,255,255,0.8); font-size: 1.1rem; text-transform:uppercase; letter-spacing: 2px;">
+                    Available Balance</p>
+                <div class="balance-amount"><span id="b-currency">NGN</span> <span id="b-amount">0.00</span></div>
+                <button class="btn"
+                    style="width: auto; padding: 0.5rem 1.5rem; background: rgba(0,0,0,0.3); margin-top: 1rem;"
+                    onclick="fetchProfile()">↻ Refresh Balance</button>
+            </div>
+
+            <div class="action-grid">
+                <!-- Fund Account -->
+                <div class="glass-panel">
+                    <h2>💰 Fund Wallet</h2>
+                    <form id="fund-form">
+                        <div class="form-group">
+                            <label>Amount (NGN)</label>
+                            <input type="number" id="f-amount" class="form-control" min="100" required
+                                placeholder="5000">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="f-desc" class="form-control" placeholder="Salary, Deposit..."
+                                value="Test Funding">
+                        </div>
+                        <button type="submit" class="btn btn-success">Execute Deposit</button>
+                    </form>
+                </div>
+
+                <!-- Withdraw -->
+                <div class="glass-panel">
+                    <h2>🏧 Withdraw</h2>
+                    <form id="withdraw-form">
+                        <div class="form-group">
+                            <label>Amount (NGN)</label>
+                            <input type="number" id="w-amount" class="form-control" min="100" required
+                                placeholder="1000">
+                        </div>
+                        <div class="form-group">
+                            <label>Description & Reason</label>
+                            <input type="text" id="w-desc" class="form-control" placeholder="ATM, Groceries..."
+                                value="Test Withdrawal">
+                        </div>
+                        <button type="submit" class="btn btn-danger">Execute Withdrawal</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="action-grid">
+                <!-- Transfer -->
+                <div class="glass-panel">
+                    <h2>💸 P2P Transfer</h2>
+                    <form id="transfer-form">
+                        <div class="form-group">
+                            <label>Recipient Email</label>
+                            <input type="email" id="t-email" class="form-control" required
+                                placeholder="alice@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount (NGN)</label>
+                            <input type="number" id="t-amount" class="form-control" min="100" required
+                                placeholder="2500">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="t-desc" class="form-control" placeholder="Debt repayment..."
+                                value="Test P2P Transfer">
+                        </div>
+                        <button type="submit" class="btn">Send Funds Transfer</button>
+                    </form>
+                </div>
+
+                <!-- History -->
+                <div class="glass-panel" style="display:flex; flex-direction:column;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--glass-border); padding-bottom:1rem;">
+                        <h2 style="border:none; padding:0; margin:0;">📜 Transaction Ledger</h2>
+                        <button onclick="fetchHistory()" class="btn"
+                            style="width:auto; padding:0.4rem 0.8rem; font-size:0.8rem;">Refresh</button>
+                    </div>
+                    <div class="transaction-list" id="tx-list">
+                        <!-- Transactions injected here -->
+                        <div style="text-align:center; padding: 2rem; color:var(--text-muted);">No transactions found.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let authToken = localStorage.getItem('lendsqr_token');
+        let isLoginView = true;
+
+        // Auto initialization
+        if (authToken) {
+            setupAuthenticatedState();
+        } else {
+            // Predrill register form with random values for ease of testing
+            document.getElementById('r-first').value = 'Test';
+            document.getElementById('r-last').value = 'User';
+            document.getElementById('r-phone').value = '080' + Math.floor(Math.random() * 90000000 + 10000000);
+            document.getElementById('r-email').value = `tester${Math.floor(Math.random() * 1000)}@example.com`;
+            document.getElementById('r-password').value = 'SecurePass123';
+        }
+
+        /* UI Helpers */
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div>${type === 'success' ? '✅' : '❌'}</div>
+                <div style="font-weight: 500;">${message}</div>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function toggleAuth() {
+            isLoginView = !isLoginView;
+            document.getElementById('login-form').style.display = isLoginView ? 'block' : 'none';
+            document.getElementById('register-form').style.display = isLoginView ? 'none' : 'block';
+            document.getElementById('auth-title').innerText = isLoginView ? 'Welcome Back' : 'Create Account';
+        }
+
+        function setupAuthenticatedState() {
+            document.getElementById('auth-panel').style.display = 'none';
+            document.getElementById('profile-panel').style.display = 'block';
+            document.getElementById('workspace-panel').style.display = 'flex';
+            fetchProfile();
+            fetchHistory();
+        }
+
+        function logout() {
+            localStorage.removeItem('lendsqr_token');
+            authToken = null;
+            document.getElementById('auth-panel').style.display = 'block';
+            document.getElementById('profile-panel').style.display = 'none';
+            document.getElementById('workspace-panel').style.display = 'none';
+            showToast('Logged out successfully');
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            try {
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (authToken) {
+                    headers['Authorization'] = `Bearer ${authToken}`;
+                }
+
+                const options = { method, headers };
+                if (body) options.body = JSON.stringify(body);
+
+                const res = await fetch(`${API_BASE}${endpoint}`, options);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.message || data.errors?.[0]?.msg || 'API Request Failed');
+                }
+                return data;
+            } catch (error) {
+                showToast(error.message, 'error');
+                if (error.message.includes('token') || error.message.includes('Unauthorized')) {
+                    logout();
+                }
+                throw error;
+            }
+        }
+
+        /* Handlers */
+
+        // Login
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('l-btn');
+            btn.innerHTML = '<div class="loader" style="display:block;"></div>';
+
+            try {
+                const data = await apiCall('/auth/login', 'POST', {
+                    email: document.getElementById('l-email').value,
+                    password: document.getElementById('l-password').value
+                });
+
+                authToken = data.data.token;
+                localStorage.setItem('lendsqr_token', authToken);
+                showToast('Login Successful!');
+                setupAuthenticatedState();
+            } catch (err) { }
+            finally { btn.innerHTML = 'Login Securely'; }
+        });
+
+        // Register
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('r-btn');
+            btn.innerHTML = '<div class="loader" style="display:block;"></div>';
+
+            try {
+                const payload = {
+                    firstName: document.getElementById('r-first').value,
+                    lastName: document.getElementById('r-last').value,
+                    phoneNumber: document.getElementById('r-phone').value,
+                    email: document.getElementById('r-email').value,
+                    password: document.getElementById('r-password').value
+                };
+                const data = await apiCall('/auth/register', 'POST', payload);
+
+                authToken = data.data.token;
+                localStorage.setItem('lendsqr_token', authToken);
+                showToast('Welcome to Lendsqr Wallet!');
+                setupAuthenticatedState();
+            } catch (err) { }
+            finally { btn.innerHTML = 'Register Account'; }
+        });
+
+        // Profile / Balance Sync
+        async function fetchProfile() {
+            try {
+                const data = await apiCall('/auth/profile');
+                const { user, wallet } = data.data;
+
+                document.getElementById('p-name').innerText = `${user.firstName} ${user.lastName}`;
+                document.getElementById('p-email').innerText = user.email;
+                document.getElementById('p-phone').innerHTML = `${user.phoneNumber} <span class="badge">Verified Clean</span>`;
+
+                document.getElementById('b-amount').innerText = Number(wallet.balance).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                document.getElementById('b-currency').innerText = wallet.currency;
+            } catch (err) { }
+        }
+
+        // Action wrappers and forms
+        async function handleAction(e, endpoint, payloadBuilder, successMsg) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerHTML = '<div class="loader" style="display:block;"></div>';
+
+            try {
+                await apiCall(endpoint, 'POST', payloadBuilder());
+                showToast(successMsg);
+                e.target.reset(); // clear form
+                fetchProfile(); // update balance
+                fetchHistory(); // update ledger
+            } catch (err) { }
+            finally { btn.innerHTML = originalText; }
+        }
+
+        document.getElementById('fund-form').addEventListener('submit', (e) => {
+            handleAction(e, '/wallet/fund', () => ({
+                amount: Number(document.getElementById('f-amount').value),
+                description: document.getElementById('f-desc').value
+            }), 'Wallet funded successfully!');
+        });
+
+        document.getElementById('withdraw-form').addEventListener('submit', (e) => {
+            handleAction(e, '/wallet/withdraw', () => ({
+                amount: Number(document.getElementById('w-amount').value),
+                description: document.getElementById('w-desc').value
+            }), 'Withdrawal processed successfully!');
+        });
+
+        document.getElementById('transfer-form').addEventListener('submit', (e) => {
+            handleAction(e, '/wallet/transfer', () => ({
+                recipientEmail: document.getElementById('t-email').value,
+                amount: Number(document.getElementById('t-amount').value),
+                description: document.getElementById('t-desc').value
+            }), 'Transfer sent successfully!');
+        });
+
+        // History
+        async function fetchHistory() {
+            const list = document.getElementById('tx-list');
+            list.innerHTML = '<div style="text-align:center; padding: 2rem;"><div class="loader" style="display:block; border-top-color:var(--primary);"></div></div>';
+
+            try {
+                const data = await apiCall('/wallet/transactions?limit=20');
+                const txs = data.data?.transactions || [];
+
+                if (txs.length === 0) {
+                    list.innerHTML = '<div style="text-align:center; padding: 2rem; color:var(--text-muted);">No transactions yet. Complete an action to see it here!</div>';
+                    return;
+                }
+
+                list.innerHTML = txs.map(tx => {
+                    const isCredit = tx.type === 'FUNDING' || (tx.type === 'TRANSFER' && !tx.recipientWalletId);
+                    // (Actually if you just query your history, API might return all where walletId matches. Lendsqr assessment: transfers debit sender, credit recipient)
+                    // We'll simplify the coloring:
+                    const typeInitial = tx.type.charAt(0); // F, T, W
+                    const sign = tx.type === 'FUNDING' ? '+' : '-';
+                    const amountColor = tx.type === 'FUNDING' ? 'var(--success)' : (tx.type === 'WITHDRAWAL' ? 'var(--danger)' : 'var(--text-main)');
+
+                    const dateObj = new Date(tx.createdAt);
+                    const dateStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    return `
+                        <div class="tx-item">
+                            <div class="tx-icon tx-${tx.type}">${typeInitial}</div>
+                            <div class="tx-details" style="flex-grow: 1;">
+                                <div class="tx-title">${tx.description || tx.type}</div>
+                                <div class="tx-date">${tx.reference} &bull; ${dateStr}</div>
+                            </div>
+                            <div class="tx-amount" style="color: ${amountColor}">${sign}₦${Number(tx.amount).toLocaleString()}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                list.innerHTML = '<div style="text-align:center; padding: 2rem; color:var(--danger);">Failed to load history</div>';
+            }
+        }
+    </script>
+</body>
+
+</html>
