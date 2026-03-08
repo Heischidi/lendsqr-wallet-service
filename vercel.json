@@ -12,12 +12,8 @@
             "dest": "src/server.ts"
         },
         {
-            "src": "/health",
-            "dest": "src/server.ts"
-        },
-        {
             "src": "/(.*)",
-            "dest": "/dashboard.html"
+            "dest": "src/server.ts"
         }
     ]
 }

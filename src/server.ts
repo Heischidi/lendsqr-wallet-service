@@ -50,9 +50,12 @@ app.use('/api/wallet', walletRoutes);
 
 import path from 'path';
 
-// Root endpoint serves the Dashboard UI
+// Serve static UI files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Root endpoint serves the Dashboard UI as default via express.static, but here is fallback:
 app.get('/', (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, '../dashboard.html'));
+  res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
 // 404 handler
