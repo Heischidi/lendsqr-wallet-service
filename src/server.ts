@@ -48,15 +48,11 @@ app.get('/health', (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', walletRoutes);
 
-// Root endpoint
+import path from 'path';
+
+// Root endpoint serves the Dashboard UI
 app.get('/', (req: Request, res: Response) => {
-  res.status(200).json({
-    success: true,
-    message: 'Welcome to Demo Credit Wallet Service API',
-    version: '1.0.0',
-    documentation: '/api/docs',
-    health: '/health',
-  });
+  res.sendFile(path.join(__dirname, '../dashboard.html'));
 });
 
 // 404 handler
