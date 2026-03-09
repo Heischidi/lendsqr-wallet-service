@@ -37,8 +37,9 @@ const config: { [key: string]: Knex.Config } = {
       ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     },
     pool: {
-      min: 2,
-      max: 10,
+      min: 0,
+      max: 1,
+      idleTimeoutMillis: 1000,
     },
     migrations: {
       directory: './db/migrations',
